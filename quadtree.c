@@ -3,12 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct QuadTreeEntry {
-    float x;
-    float y;
-    int index;
-};
-
 int rec_contains(Rectangle b, Vector2 p) {
     return p.x >= b.x &&
     p.x <= b.x + b.width &&
@@ -36,7 +30,7 @@ struct QuadTree make_quadtree(Rectangle b, int cap, int sp) {
     return (struct QuadTree) {
         .boundary = b,
         .cap = cap,
-        .points = malloc(sizeof(Vector2) * cap),
+        .points = malloc(sizeof(struct QuadTreeEntry) * cap),
         .num_points = 0,
         .divided = 0,
         .show_points = 1,
@@ -73,23 +67,23 @@ void subdivide(struct QuadTree* qt) {
     qt->divided = 1;
 }
 
-void insert(struct QuadTree* qt, Vector2 p) {
-    if (!rec_contains(qt->boundary, p)) {
+void insert(struct QuadTree* qt, struct QuadTreeEntry qte) {
+    if (!rec_contains(qt->boundary, qte.pos)) {
         return;
     }
 
     if (qt->num_points < qt->cap) {
-        qt->points[qt->num_points] = p;
+        qt->points[qt->num_points] = qte;
         qt->num_points++;
     } else {
         if (qt->divided == 0) {
             subdivide(qt);
         }
 
-        insert(qt->northeast, p);
-        insert(qt->northwest, p);
-        insert(qt->southeast, p);
-        insert(qt->southwest, p);
+        insert(qt->northeast, qte);
+        insert(qt->northwest, qte);
+        insert(qt->southeast, qte);
+        insert(qt->southwest, qte);
     }
 }
 
@@ -98,7 +92,7 @@ void query(struct QTQueryResult* result, Rectangle range, struct QuadTree* qt) {
         return;
     } else {
         for (int i = 0; i < qt->num_points; i++) {
-            if (rec_contains(range, qt->points[i])) {
+            if (rec_contains(range, qt->points[i].pos)) {
                 result->results[result->len] = qt->points[i];
                 result->len++;
             }
@@ -124,7 +118,7 @@ void show_quadtree(struct QuadTree* qt) {
 
     if (qt->show_points) {
         for (int i = 0; i < qt->num_points; i++) {
-            DrawPixel(qt->points[i].x, qt->points[i].y, WHITE);
+            DrawPixel(qt->points[i].pos.x, qt->points[i].pos.y, WHITE);
         }
     }
 }

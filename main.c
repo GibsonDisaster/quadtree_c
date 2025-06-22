@@ -10,7 +10,7 @@ typedef struct {
 } Sim;
 
 Sim make_sim(int n) {
-    Vector2* pts = malloc(sizeof(Vector2) * n);
+    struct Vector2* pts = malloc(sizeof(Vector2) * n);
 
     return (Sim) {
         .points = pts,
@@ -30,16 +30,22 @@ int main(void) {
     Rectangle boundary = easy_rec(0, 0, 800, 800);
     struct QuadTree qt = make_quadtree(boundary, 20, 100);
 
+    Sim sim = (Sim) {
+        .points = malloc(sizeof(Vector2) * 100),
+        .num_points = 100
+    };
+
     for (int i = 0; i < 100; i++) {
-        insert(&qt, (Vector2) {.x = GetRandomValue(0, 800), .y = GetRandomValue(0, 800)});
+        struct QuadTreeEntry qte = (struct QuadTreeEntry) {
+          .pos = (Vector2) {.x = GetRandomValue(0, 800), .y = GetRandomValue(0, 800)},
+          .index = i
+        };
+        sim.points[i] = qte.pos;
+        insert(&qt, qte);
     }
 
     while (!WindowShouldClose())
     {
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-            insert(&qt, (Vector2) {.x = GetMouseX(), .y = GetMouseY()});
-        }
-
         mouseBoundary.x = GetMouseX() - 50;
         mouseBoundary.y = GetMouseY() - 50;
 
@@ -58,7 +64,8 @@ int main(void) {
 
         if (qt_result.len > 0) {
             for (int i = 0; i < qt_result.len; i++) {
-                DrawCircle(qt_result.results[i].x, qt_result.results[i].y, 1.0, GREEN);
+                int index = qt_result.results[i].index;
+                DrawCircle(sim.points[index].x, sim.points[index].y, 1.0, GREEN);
             }
         }
 
@@ -68,6 +75,7 @@ int main(void) {
     }
 
     free_qt(&qt);
+    free(sim.points);
 
     CloseWindow();
 }
