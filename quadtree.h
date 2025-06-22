@@ -30,4 +30,6 @@ void subdivide(struct QuadTree* qt);
 void insert(struct QuadTree* qt, Vector2 p);
 void query(struct QTQueryResult* result, Rectangle range, struct QuadTree* qt);
 void show_quadtree(struct QuadTree* qt);
+
+void free_qt(struct QuadTree* qt);
 #endif

@@ -67,5 +67,7 @@ int main(void) {
         EndDrawing();
     }
 
+    free_qt(&qt);
+
     CloseWindow();
 }

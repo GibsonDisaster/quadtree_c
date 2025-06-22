@@ -128,3 +128,24 @@ void show_quadtree(struct QuadTree* qt) {
         }
     }
 }
+
+void free_qt(struct QuadTree* qt) {
+    if (qt->northwest != NULL) {
+        free_qt(qt->northwest);
+    }
+    if (qt->northeast != NULL) {
+        free_qt(qt->northeast);
+    }
+    if (qt->southwest != NULL) {
+        free_qt(qt->southwest);
+    }
+    if (qt->southeast != NULL) {
+        free_qt(qt->southeast);
+    }
+
+    free(qt->northwest);
+    free(qt->northeast);
+    free(qt->southwest);
+    free(qt->southeast);
+    free(qt->points);
+}
